@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using AppBackendCore2026.DTOs;
+using System.Threading.Tasks;
 
 namespace AppBackendCore2026.Services
 {
@@ -11,7 +12,7 @@ namespace AppBackendCore2026.Services
             _usersRepository = usersRepository;
         }
 
-        public async Task<List<UserObj>> GetAll()
+        public async Task<List<UserLight>> GetAll()
         {
             return await _usersRepository.GetAll();
         }

@@ -1,5 +1,6 @@
-using Dapper;
 using AppBackendCore2026.Data;
+using AppBackendCore2026.DTOs;
+using Dapper;
 
 namespace AppBackendCore2026.Repositories
 {
@@ -12,11 +13,11 @@ namespace AppBackendCore2026.Repositories
             _context = context;
         }
 
-        public async Task<List<UserObj>> GetAll()
+        public async Task<List<UserLight>> GetAll()
         {
-            const string query = "SELECT id AS Id, firstname, lastname, email, password FROM users;";
+            const string query = "SELECT id, firstname, lastname, email FROM users;";
             using var connection = _context.CreateConnection();
-            var users = await connection.QueryAsync<UserObj>(query);
+            var users = await connection.QueryAsync<UserLight>(query);
             return users.ToList();
         }
     }
