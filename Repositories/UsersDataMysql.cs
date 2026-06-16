@@ -48,5 +48,13 @@ namespace AppBackendCore2026.Repositories
                 email = user.email
             };
         }
+
+        public async Task<UserObj?> GetByEmail(string email)
+        {
+            const string query = "SELECT id, firstname, lastname, email, password AS Password FROM users WHERE email = @email;";
+
+            using var connection = _context.CreateConnection();
+            return await connection.QuerySingleOrDefaultAsync<UserObj>(query, new { email });
+        }
     }
 }

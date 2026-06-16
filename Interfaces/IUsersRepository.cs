@@ -6,5 +6,6 @@ namespace AppBackendCore2026.Interfaces
     {
         Task<List<UserLightDto>> GetAll();
         Task<UserLightDto> AddUser(CreateUserDto user);
+        Task<UserObj?> GetByEmail(string email);
     }
 }

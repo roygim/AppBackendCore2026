@@ -6,10 +6,12 @@ namespace AppBackendCore2026.Services
     public class UsersService: IUsersService
     {
         private readonly IUsersRepository _usersRepository;
+        private readonly ITokenService _tokenService;
 
-        public UsersService(IUsersRepository usersRepository)
+        public UsersService(IUsersRepository usersRepository, ITokenService tokenService)
         {
             _usersRepository = usersRepository;
+            _tokenService = tokenService;
         }
 
         public async Task<List<UserLightDto>> GetAll()
@@ -20,6 +22,32 @@ namespace AppBackendCore2026.Services
         public async Task<UserLightDto> AddUser(CreateUserDto user)
         {
             return await _usersRepository.AddUser(user);
+        }
+
+        public async Task<ResponseObj<LoginResultDto>> Login(string email, string password)
+        {
+            var user = await _usersRepository.GetByEmail(email);
+            if (user == null)
+                return new ResponseObj<LoginResultDto> { success = false, error = ErrorType.UserNotFound };
+
+            if (!BCrypt.Net.BCrypt.Verify(password, user.Password))
+                return new ResponseObj<LoginResultDto> { success = false, error = ErrorType.InvalidPassword };
+
+            return new ResponseObj<LoginResultDto>
+            {
+                success = true,
+                data = new LoginResultDto
+                {
+                    accessToken = _tokenService.CreateToken(user),
+                    user = new UserLightDto
+                    {
+                        id = user.Id,
+                        firstname = user.firstname,
+                        lastname = user.lastname,
+                        email = user.email
+                    }
+                }
+            };
         }
     }
 }

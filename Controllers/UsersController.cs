@@ -27,5 +27,25 @@ namespace UsersBackend.Controllers
             UserLightDto created = await _usersService.AddUser(user);
             return Ok(created);
         }
+
+        [HttpPost("Login")]
+        public async Task<ActionResult> Login([FromBody] LoginDto credentials)
+        {
+            var response = await _usersService.Login(credentials.email, credentials.password);
+
+            if (!response.success)
+            {
+                return response.error switch
+                {
+                    ErrorType.UserNotFound => NotFound(new { error = response.error, message = "User not found" }),
+                    ErrorType.InvalidPassword => BadRequest(new { error = response.error, message = "Invalid password" }),
+                    _ => StatusCode(500, "error")
+                };
+            }
+
+            Response.Cookies.Append("userToken", response.data!.accessToken, new CookieOptions { HttpOnly = true });
+
+            return Ok(response);
+        }
     }
 }

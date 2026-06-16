@@ -7,6 +7,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<UsersDbContext>();
 builder.Services.AddScoped<IUsersRepository, UsersDataMysql>();
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
