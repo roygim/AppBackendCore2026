@@ -4,7 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddScoped<DapperContext>();
+builder.Services.AddScoped<UsersDbContext>();
 builder.Services.AddScoped<IUsersRepository, UsersDataMysql>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 

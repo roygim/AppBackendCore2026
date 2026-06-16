@@ -5,9 +5,9 @@ namespace AppBackendCore2026.Repositories
 {
     public class UsersDataMysql: IUsersRepository
     {
-        private readonly DapperContext _context;
+        private readonly UsersDbContext _context;
 
-        public UsersDataMysql(DapperContext context)
+        public UsersDataMysql(UsersDbContext context)
         {
             _context = context;
         }
