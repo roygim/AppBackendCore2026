@@ -15,10 +15,17 @@ namespace UsersBackend.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<List<UserLight>>> GetAll()
+        public async Task<ActionResult<List<UserLightDto>>> GetAll()
         {
-            List<UserLight> data = await _usersService.GetAll();
+            List<UserLightDto> data = await _usersService.GetAll();
             return Ok(data);
+        }
+
+        [HttpPost("AddUser")]
+        public async Task<ActionResult<UserLightDto>> AddUser([FromBody] CreateUserDto user)
+        {
+            UserLightDto created = await _usersService.AddUser(user);
+            return Ok(created);
         }
     }
 }

@@ -4,6 +4,7 @@ namespace AppBackendCore2026.Interfaces
 {
     public interface IUsersService
     {
-        Task<List<UserLight>> GetAll();
+        Task<List<UserLightDto>> GetAll();
+        Task<UserLightDto> AddUser(CreateUserDto user);
     }
 }

@@ -12,9 +12,14 @@ namespace AppBackendCore2026.Services
             _usersRepository = usersRepository;
         }
 
-        public async Task<List<UserLight>> GetAll()
+        public async Task<List<UserLightDto>> GetAll()
         {
             return await _usersRepository.GetAll();
+        }
+
+        public async Task<UserLightDto> AddUser(CreateUserDto user)
+        {
+            return await _usersRepository.AddUser(user);
         }
     }
 }

@@ -11,29 +11,39 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 There is no test project yet — no test commands apply.
 
+**Do not build or run the app when finishing a task.** Make the code changes and stop — the user builds and runs the app themselves. Only run `dotnet build`/`dotnet run` if explicitly asked.
+
 ## Architecture
 
 ASP.NET Core Web API on **.NET 10**, with `Nullable` and `ImplicitUsings` enabled. Classic 3-tier separation, one layer per top-level folder:
 
 - `Controllers/` — HTTP endpoints (thin; delegate to services)
 - `Services/` — business logic, depends on repository interfaces
-- `Repositories/` — data access (intended target: MySQL via Dapper)
+- `Repositories/` — data access via **Dapper** over **MySqlConnector**
 - `Interfaces/` — contracts for both services and repositories (`IUsersService`, `IUsersRepository`)
 - `Models/` — domain objects (`UserObj`)
-- `DTOs/`, `Data/`, `Middleware/` — created but empty; reserved for future DTOs, a DbContext, and custom middleware
+- `DTOs/` — request/response shapes that don't expose the full domain model (`UserLight` for reads, `CreateUser` for inserts)
+- `Data/` — `UsersDbContext`, a thin Dapper connection factory
+- `Middleware/` — created but empty; reserved for future custom middleware
 
-Dependency flow: Controller → `IUsersService` → `IUsersRepository`. The MySQL repository (`UsersDataMysql`) is the concrete `IUsersRepository`.
+Dependency flow: Controller → `IUsersService` → `IUsersRepository`. The MySQL repository (`UsersDataMysql`) is the concrete `IUsersRepository` and takes `UsersDbContext` for connections. DI for all three plus `UsersDbContext` is registered in `Program.cs` (`AddScoped`).
+
+### Data access
+- `Data/UsersDbContext.cs` reads the `csUsersMysql` connection string (from `appsettings.Development.json`) and exposes `CreateConnection()` returning a `MySqlConnection`. It throws if the connection string is missing.
+- Repositories open a connection per call with `using var connection = _context.CreateConnection();` and run Dapper queries. Inserts return the new id via a trailing `SELECT LAST_INSERT_ID();` read with `ExecuteScalarAsync<int>`.
+- The MySQL `users` table columns are `id, firstname, lastname, email, password`. Dapper maps these to matching property names — keep DTO/model property casing aligned with the column names (mostly lowercase) so mapping works without aliases.
 
 ### Conventions
-- **Global usings**: layer namespaces are registered once in `GlobalUsings.cs` (Interfaces, Services, Repositories, Models). New files generally do not need explicit `using` for these; add new layer namespaces there rather than per-file.
-- **Namespaces** follow `AppBackendCore2026.<Layer>`. NOTE: `UsersController` currently uses `UsersBackend.Controllers` — an inconsistency to fix when touching it.
-- Domain model is named `UserObj` (not `User`), defined in `Models/User.cs`.
+- **Global usings**: layer namespaces are registered once in `GlobalUsings.cs` (Interfaces, Services, Repositories, Models, Data). New files generally do not need explicit `using` for these. NOTE: `DTOs` is **not** global — files using `UserLight`/`CreateUser` add `using AppBackendCore2026.DTOs;` per-file.
+- **Namespaces** follow `AppBackendCore2026.<Layer>`. NOTE: `UsersController` still uses `UsersBackend.Controllers` — an inconsistency to fix when touching it.
+- Domain model is named `UserObj` (not `User`), defined in `Models/User.cs`. Prefer returning a DTO (e.g. `UserLight`) from endpoints rather than `UserObj` so fields like `password` aren't exposed.
 
-## Current State / Gotchas
+## Current Endpoints
 
-This project is scaffolded but not yet functional end-to-end. Before relying on the Users endpoint:
+`UsersController` (`api/users`):
+- `GET /api/users/GetAll` → `List<UserLight>`
+- `POST /api/users/AddUser` (body: `CreateUser`) → created `UserLight`
 
-- **DI is not registered.** `Program.cs` does not call `AddScoped`/`AddSingleton` for `IUsersService`/`IUsersRepository`, so the controller will fail to resolve at runtime. Register them in `Program.cs`.
-- **Repository is a stub.** `UsersDataMysql.GetAll()` returns `null`; the Dapper implementation is commented out and there is no `DapperDBContext`, connection string, or DB config yet.
-- **`UserObj` is minimal** — only an `Id` property.
-- No connection string exists in `appsettings.json` / `appsettings.Development.json`.
+## Setup notes
+
+- A working `csUsersMysql` connection string must exist in `appsettings.Development.json` and point at a reachable MySQL instance with a `users` table for the endpoints to work.
