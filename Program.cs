@@ -3,6 +3,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+builder.Services.AddSingleton<DapperContext>();
+builder.Services.AddScoped<IUsersRepository, UsersDataMysql>();
+builder.Services.AddScoped<IUsersService, UsersService>();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
