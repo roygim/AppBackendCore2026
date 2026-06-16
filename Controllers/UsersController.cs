@@ -47,5 +47,17 @@ namespace UsersBackend.Controllers
 
             return Ok(response);
         }
+
+        [HttpDelete("Logout")]
+        public ActionResult Logout()
+        {
+            Response.Cookies.Delete("userToken");
+
+            return Ok(new ResponseObj<object>
+            {
+                success = true,
+                message = "user logout"
+            });
+        }
     }
 }

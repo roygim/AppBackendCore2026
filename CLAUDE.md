@@ -22,7 +22,7 @@ ASP.NET Core Web API on **.NET 10**, with `Nullable` and `ImplicitUsings` enable
 - `Repositories/` — data access via **Dapper** over **MySqlConnector**
 - `Interfaces/` — contracts for both services and repositories (`IUsersService`, `IUsersRepository`)
 - `Models/` — domain objects (`UserObj`)
-- `DTOs/` — request/response shapes that don't expose the full domain model (`UserLightDto` for reads, `CreateUserDto` for inserts, `LoginDto` for login, `LoginResultDto`, and the generic `ServiceResult<T>` envelope). DTOs follow a `*Dto` suffix and lowercase property names.
+- `DTOs/` — request/response shapes that don't expose the full domain model (`UserLightDto` for reads, `CreateUserDto` for inserts, `LoginDto` for login, `LoginResultDto`). DTOs follow a `*Dto` suffix and lowercase property names. (The generic response envelope `ResponseObj<T>` lives in `Models/`, not here.)
 - `Data/` — `UsersDbContext`, a thin Dapper connection factory
 - `Middleware/` — created but empty; reserved for future custom middleware
 
@@ -35,8 +35,8 @@ Dependency flow: Controller → `IUsersService` → `IUsersRepository`. The MySQ
 
 ### Auth (login / JWT)
 - Passwords are hashed with **BCrypt.Net-Next** (`BCrypt.Net.BCrypt.HashPassword(pwd, 12)` on insert; `BCrypt.Net.BCrypt.Verify(...)` on login).
-- `Services/TokenService.cs` (`ITokenService`) issues a JWT via `System.IdentityModel.Tokens.Jwt`. It reads `Jwt:SecretKey` from config, derives the HS256 signing key as `SHA256(secret)` (because the configured secret is shorter than the 256-bit minimum HS256 requires), and emits `sub` + `email` claims with a 1h expiry. NOTE: the SHA-256 derivation means tokens are **not** signature-compatible with Node's `jsonwebtoken`; use a ≥32-char raw secret and drop the hashing if cross-compat is needed.
-- Service methods that can fail return `ServiceResult<T>` (`{ success, error: ErrorType?, message, data }`); the controller maps `ErrorType.UserNotFound`→404 and `InvalidPassword`→400. On success, `Login` sets an `httpOnly` `userToken` cookie.
+- `Services/TokenService.cs` (`ITokenService`) issues a JWT via `System.IdentityModel.Tokens.Jwt`. It reads `Jwt:SecretKey` from config, derives the HS256 signing key as `SHA256(secret)` (because the configured secret is shorter than the 256-bit minimum HS256 requires), and emits `sub` + `email` claims (no expiry). NOTE: the SHA-256 derivation means tokens are **not** signature-compatible with Node's `jsonwebtoken`; use a ≥32-char raw secret and drop the hashing if cross-compat is needed.
+- Service methods that can fail return `ResponseObj<T>` (in `Models/`: `{ success, error: ErrorType?, message, data }`); the controller maps `ErrorType.UserNotFound`→404 and `InvalidPassword`→400. On success, `Login` sets an `httpOnly` `userToken` cookie.
 - Token **validation** middleware / `[Authorize]` is not set up yet — tokens are only issued.
 
 ### Conventions
@@ -49,7 +49,8 @@ Dependency flow: Controller → `IUsersService` → `IUsersRepository`. The MySQ
 `UsersController` (`api/users`):
 - `GET /api/users/GetAll` → `List<UserLightDto>`
 - `POST /api/users/AddUser` (body: `CreateUserDto`) → created `UserLightDto`
-- `POST /api/users/Login` (body: `LoginDto`) → `ServiceResult<LoginResultDto>`; sets `httpOnly` `userToken` cookie. 404 if user not found, 400 if password invalid.
+- `POST /api/users/Login` (body: `LoginDto`) → `ResponseObj<LoginResultDto>`; sets `httpOnly` `userToken` cookie. 404 if user not found, 400 if password invalid.
+- `DELETE /api/users/Logout` → clears the `userToken` cookie, returns `ResponseObj` `{ success, message }`.
 
 ## Setup notes
 

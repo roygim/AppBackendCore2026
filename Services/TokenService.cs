@@ -27,13 +27,13 @@ namespace AppBackendCore2026.Services
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.email)
+                new Claim("userId", user.Id.ToString(), ClaimValueTypes.Integer),
+                //new Claim(JwtRegisteredClaimNames.Email, user.email)
             };
 
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                //expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
