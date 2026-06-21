@@ -14,14 +14,16 @@ namespace AppBackendCore2026.Services
             _tokenService = tokenService;
         }
 
-        public async Task<List<UserLightDto>> GetAll()
+        public async Task<ResponseObj<List<UserLightDto>>> GetAll()
         {
-            return await _usersRepository.GetAll();
+            var users = await _usersRepository.GetAll();
+            return new ResponseObj<List<UserLightDto>> { success = true, data = users };
         }
 
-        public async Task<UserLightDto> AddUser(CreateUserDto user)
+        public async Task<ResponseObj<UserLightDto>> AddUser(CreateUserDto user)
         {
-            return await _usersRepository.AddUser(user);
+            var created = await _usersRepository.AddUser(user);
+            return new ResponseObj<UserLightDto> { success = true, data = created };
         }
 
         public async Task<ResponseObj<UserLightDto>> GetUserById(int id)
@@ -34,9 +36,9 @@ namespace AppBackendCore2026.Services
             return new ResponseObj<UserLightDto> { success = true, data = new UserLightDto()
             {
                 id = user.Id,
-                email = user.email,
                 firstname = user.firstname,
-                lastname = user.lastname
+                lastname = user.lastname,
+                email = user.email                
             }};
         }
 
