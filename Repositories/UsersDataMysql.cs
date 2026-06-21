@@ -64,5 +64,44 @@ namespace AppBackendCore2026.Repositories
             using var connection = _context.CreateConnection();
             return await connection.QuerySingleOrDefaultAsync<UserObj>(query, new { id });
         }
+
+        public async Task<UserLightDto?> GetUserLightById(int userId)
+        {
+            const string query = "SELECT id, firstname, lastname, email FROM users WHERE id = @userId;";
+
+            using var connection = _context.CreateConnection();
+            return await connection.QuerySingleOrDefaultAsync<UserLightDto>(query, new { userId });
+        }
+
+        public async Task<UserLightDto?> UpdateUser(int userId, UpdateUserDto user)
+        {
+            const string query = @"UPDATE users
+                                   SET firstname = @firstname, lastname = @lastname
+                                   WHERE id = @userId;";
+
+            using var connection = _context.CreateConnection();
+
+            var affected = await connection.ExecuteAsync(query, new
+            {
+                userId,
+                user.firstname,
+                user.lastname
+            });
+
+            if (affected == 0)
+                return null;
+
+            return await GetUserLightById(userId);
+        }
+
+        public async Task<bool> DeleteUser(int userId)
+        {
+            const string query = "DELETE FROM users WHERE id = @userId;";
+
+            using var connection = _context.CreateConnection();
+            var affected = await connection.ExecuteAsync(query, new { userId });
+
+            return affected > 0;
+        }
     }
 }

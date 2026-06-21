@@ -67,5 +67,25 @@ namespace AppBackendCore2026.Services
                 }
             };
         }
+
+        public async Task<ResponseObj<UserLightDto>> UpdateUser(int userId, UpdateUserDto user)
+        {
+            var updated = await _usersRepository.UpdateUser(userId, user);
+
+            if (updated == null)
+                return new ResponseObj<UserLightDto> { success = false, error = ErrorType.UserNotFound };
+
+            return new ResponseObj<UserLightDto> { success = true, data = updated };
+        }
+
+        public async Task<ResponseObj<object>> DeleteUser(int userId)
+        {
+            var deleted = await _usersRepository.DeleteUser(userId);
+
+            if (!deleted)
+                return new ResponseObj<object> { success = false, error = ErrorType.UserNotFound };
+
+            return new ResponseObj<object> { success = true, message = "user deleted" };
+        }
     }
 }

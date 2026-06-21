@@ -15,7 +15,6 @@ namespace UsersBackend.Controllers
             _usersService = usersService;
         }
 
-        //[Authorize]
         [HttpPost("register")]
         public async Task<ActionResult> AddUser([FromBody] CreateUserDto user)
         {
@@ -82,6 +81,42 @@ namespace UsersBackend.Controllers
         {
             var response = await _usersService.GetAll();
             return Ok(response);
-        }        
+        }
+
+        [Authorize]
+        [HttpPut("update/{userId}")]
+        public async Task<ActionResult> UpdateUser([FromRoute] int userId, [FromBody] UpdateUserDto user)
+        {
+            var response = await _usersService.UpdateUser(userId, user);
+
+            if (!response.success)
+            {
+                return response.error switch
+                {
+                    ErrorType.UserNotFound => NotFound(new { error = response.error, message = "User not found" }),
+                    _ => StatusCode(500, "error")
+                };
+            }
+
+            return Ok(response);
+        }
+
+        [Authorize]
+        [HttpDelete("delete/{userId}")]
+        public async Task<ActionResult> DeleteUser([FromRoute] int userId)
+        {
+            var response = await _usersService.DeleteUser(userId);
+
+            if (!response.success)
+            {
+                return response.error switch
+                {
+                    ErrorType.UserNotFound => NotFound(new { error = response.error, message = "User not found" }),
+                    _ => StatusCode(500, "error")
+                };
+            }
+
+            return Ok(response);
+        }
     }
 }

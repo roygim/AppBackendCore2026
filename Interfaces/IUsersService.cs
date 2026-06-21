@@ -8,5 +8,7 @@ namespace AppBackendCore2026.Interfaces
         Task<ResponseObj<UserLightDto>> AddUser(CreateUserDto user);
         Task<ResponseObj<LoginResultDto>> Login(string email, string password);
         Task<ResponseObj<UserLightDto>> GetUserById(int id);
+        Task<ResponseObj<UserLightDto>> UpdateUser(int id, UpdateUserDto user);
+        Task<ResponseObj<object>> DeleteUser(int userId);
     }
 }

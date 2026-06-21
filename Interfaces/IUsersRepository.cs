@@ -8,5 +8,7 @@ namespace AppBackendCore2026.Interfaces
         Task<UserLightDto> AddUser(CreateUserDto user);
         Task<UserObj?> GetByEmail(string email);
         Task<UserObj?> GetById(int id);
+        Task<UserLightDto?> UpdateUser(int id, UpdateUserDto user);
+        Task<bool> DeleteUser(int userId);
     }
 }
