@@ -56,5 +56,13 @@ namespace AppBackendCore2026.Repositories
             using var connection = _context.CreateConnection();
             return await connection.QuerySingleOrDefaultAsync<UserObj>(query, new { email });
         }
+
+        public async Task<UserObj?> GetById(int id)
+        {
+            const string query = "SELECT id, firstname, lastname, email, password FROM users WHERE id = @id;";
+
+            using var connection = _context.CreateConnection();
+            return await connection.QuerySingleOrDefaultAsync<UserObj>(query, new { id });
+        }
     }
 }

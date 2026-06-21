@@ -30,6 +30,28 @@ namespace UsersBackend.Controllers
             return Ok(created);
         }
 
+        [Authorize]
+        [HttpPost("LoadUser")]
+        public async Task<ActionResult> LoadUser()
+        {
+            var userId = User.FindFirst("userId")?.Value;
+            if (!int.TryParse(userId, out var id))
+                return Unauthorized();
+
+            var response = await _usersService.GetUserById(id);
+
+            if (!response.success)
+            {
+                return response.error switch
+                {
+                    ErrorType.UserNotFound => NotFound(new { error = response.error, message = "User not found" }),
+                    _ => StatusCode(500, "error")
+                };
+            }
+
+            return Ok(response);
+        }
+
         [HttpPost("Login")]
         public async Task<ActionResult> Login([FromBody] LoginDto credentials)
         {

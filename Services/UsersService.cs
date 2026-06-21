@@ -24,6 +24,22 @@ namespace AppBackendCore2026.Services
             return await _usersRepository.AddUser(user);
         }
 
+        public async Task<ResponseObj<UserLightDto>> GetUserById(int id)
+        {
+            var user = await _usersRepository.GetById(id);
+
+            if (user == null)
+                return new ResponseObj<UserLightDto> { success = false, error = ErrorType.UserNotFound };
+
+            return new ResponseObj<UserLightDto> { success = true, data = new UserLightDto()
+            {
+                id = user.Id,
+                email = user.email,
+                firstname = user.firstname,
+                lastname = user.lastname
+            }};
+        }
+
         public async Task<ResponseObj<LoginResultDto>> Login(string email, string password)
         {
             var user = await _usersRepository.GetByEmail(email);
