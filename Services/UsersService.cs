@@ -22,7 +22,20 @@ namespace AppBackendCore2026.Services
 
         public async Task<ResponseObj<UserLightDto>> AddUser(CreateUserDto user)
         {
+            var existing = await _usersRepository.GetByEmail(user.email);
+            
+            if (existing != null)
+            {
+                return new ResponseObj<UserLightDto>
+                {
+                    success = false,
+                    error = ErrorType.UserAlreadyExists,
+                    message = "user already exists"
+                };
+            }                
+
             var created = await _usersRepository.AddUser(user);
+            
             return new ResponseObj<UserLightDto> { success = true, data = created };
         }
 
