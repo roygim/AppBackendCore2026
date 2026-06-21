@@ -1,4 +1,5 @@
 using AppBackendCore2026.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace UsersBackend.Controllers
@@ -21,6 +22,7 @@ namespace UsersBackend.Controllers
             return Ok(data);
         }
 
+        [Authorize]
         [HttpPost("AddUser")]
         public async Task<ActionResult<UserLightDto>> AddUser([FromBody] CreateUserDto user)
         {
