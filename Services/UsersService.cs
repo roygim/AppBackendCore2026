@@ -1,4 +1,5 @@
 ﻿using AppBackendCore2026.DTOs;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 namespace AppBackendCore2026.Services
@@ -22,6 +23,19 @@ namespace AppBackendCore2026.Services
 
         public async Task<ResponseObj<UserLightDto>> AddUser(CreateUserDto user)
         {
+            var validationResults = new List<ValidationResult>();
+            var context = new ValidationContext(user);
+
+            if (!Validator.TryValidateObject(user, context, validationResults, validateAllProperties: true))
+            {
+                return new ResponseObj<UserLightDto>
+                {
+                    success = false,
+                    error = ErrorType.ValidationError,
+                    message = validationResults.First().ErrorMessage
+                };
+            }
+
             var existing = await _usersRepository.GetByEmail(user.email);
             
             if (existing != null)

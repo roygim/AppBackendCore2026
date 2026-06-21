@@ -4,6 +4,7 @@ namespace AppBackendCore2026.Models
     {
         UserNotFound,
         InvalidPassword,
-        UserAlreadyExists
+        UserAlreadyExists,
+        ValidationError
     }
 }
