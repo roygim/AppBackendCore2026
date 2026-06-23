@@ -9,6 +9,18 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
+const string FrontendCors = "FrontendCors";
+
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+
+builder.Services.AddCors(options =>
+    options.AddPolicy(FrontendCors, policy =>
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials()));
+
 builder.Services.AddScoped<UsersDbContext>();
 builder.Services.AddScoped<IUsersRepository, UsersDataMysql>();
 builder.Services.AddScoped<IUsersService, UsersService>();
@@ -57,6 +69,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(FrontendCors);
 
 app.UseAuthentication();
 
