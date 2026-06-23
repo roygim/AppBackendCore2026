@@ -37,7 +37,13 @@ namespace UsersBackend.Controllers
                 };
             }
 
-            Response.Cookies.Append("userToken", response.data!.accessToken, new CookieOptions { HttpOnly = true });
+            Response.Cookies.Append("userToken", response.data!.accessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/"
+            });
 
             return Ok(response);
         }
@@ -45,7 +51,13 @@ namespace UsersBackend.Controllers
         [HttpDelete("logout")]
         public ActionResult Logout()
         {
-            Response.Cookies.Delete("userToken");
+            Response.Cookies.Delete("userToken", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/"
+            });
 
             return Ok(new ResponseObj<object>
             {
