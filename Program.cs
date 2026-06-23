@@ -51,7 +51,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c => c.DocumentTitle = "Swagger UI - Core");
 }
 
 app.UseHttpsRedirection();
