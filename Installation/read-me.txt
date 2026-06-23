@@ -1,0 +1,32 @@
+﻿1. add file appsettings.Development.json
+    
+    {
+      "ConnectionStrings": {
+        "csUsersMysql": "Server=localhost;Port=3306;Database={Database Name};User ID=root;Password={Password}"
+      },
+      "Jwt": {
+        "SecretKey": "very secret code"
+      },
+      "Cors": {
+        "AllowedOrigins": [ "http://localhost:3000" ]
+      },
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.AspNetCore": "Warning"
+        }
+      }
+    }
+
+1.1 update "Cors" value with the front url
+    1.1 ex: - http://localhost:3000
+
+1.2 update "ConnectionStrings" value with the database name and password
+    1.2 ex: - Database=users;Password=123456
+
+2. run
+
+===========================================
+
+for database:
+1. mysql - create schema with file db.txt
