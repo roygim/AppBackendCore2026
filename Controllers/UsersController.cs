@@ -19,6 +19,16 @@ namespace UsersBackend.Controllers
         public async Task<ActionResult> AddUser([FromBody] CreateUserDto user)
         {
             var response = await _usersService.AddUser(user);
+
+            if (!response.success)
+            {
+                return response.error switch
+                {
+                    ErrorType.UserAlreadyExists => BadRequest(new { error = response.error, message = "User already exists" }),
+                    _ => StatusCode(500, "error")
+                };
+            }
+
             return Ok(response);
         }
 
